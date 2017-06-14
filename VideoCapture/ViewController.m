@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import <AVFoundation/AVFoundation.h>
 
-@interface ViewController () <AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface ViewController () <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
 
 @property (nonatomic, strong) AVCaptureSession *session;
 
@@ -64,10 +64,24 @@
 
 - (void)setupAudioInputOutput
 {
+    //创建输入
+    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    NSError *error = nil;
+    AVCaptureInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+    if (error)
+    {
+        NSLog(@"%@", error);
+        return;
+    }
     
+    //创建输出
+    AVCaptureAudioDataOutput *output = [[AVCaptureAudioDataOutput alloc] init];
+    [output setSampleBufferDelegate:self queue:dispatch_get_global_queue(0, 0)];
+    
+    [self addInputOutputToSession:input output:output];
 }
 
-- (void)addInputOutputToSession:(AVCaptureDeviceInput *)input output:(AVCaptureVideoDataOutput *)output
+- (void)addInputOutputToSession:(AVCaptureInput *)input output:(AVCaptureOutput *)output
 {
     [self.session beginConfiguration];
     
