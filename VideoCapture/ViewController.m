@@ -16,6 +16,8 @@
 @property (nonatomic, strong) AVCaptureDeviceInput *videoInput;
 
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
+
+@property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @end
 
 @implementation ViewController
@@ -30,6 +32,8 @@
     //初始化音频的输入&输出
     [self setupAudioInputOutput];
     
+    //创建预览图层
+//    [self setupPreviewLayer];
 }
 
 - (void)setupVideoInputOutput
@@ -79,6 +83,15 @@
     [output setSampleBufferDelegate:self queue:dispatch_get_global_queue(0, 0)];
     
     [self addInputOutputToSession:input output:output];
+}
+
+- (void)setupPreviewLayer
+{
+    AVCaptureVideoPreviewLayer *previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+    previewLayer.frame = self.view.bounds;
+    [self.view.layer insertSublayer:previewLayer atIndex:0];
+    
+    self.previewLayer = previewLayer;
 }
 
 - (void)addInputOutputToSession:(AVCaptureInput *)input output:(AVCaptureOutput *)output
