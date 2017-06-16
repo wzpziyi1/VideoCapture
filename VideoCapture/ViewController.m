@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import <AVFoundation/AVFoundation.h>
 
-@interface ViewController () <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
+@interface ViewController () <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureFileOutputRecordingDelegate>
 
 @property (nonatomic, strong) AVCaptureSession *session;
 
@@ -18,6 +18,8 @@
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
+
+@property (nonatomic, strong) AVCaptureMovieFileOutput *movieOutput;
 @end
 
 @implementation ViewController
@@ -94,6 +96,27 @@
     self.previewLayer = previewLayer;
 }
 
+- (void)setupMovieFileOutput
+{
+    [self.session removeOutput:self.movieOutput];
+    
+    //创建写入文件的输出
+    self.movieOutput = [[AVCaptureMovieFileOutput alloc] init];
+    
+    AVCaptureConnection *connection = [self.movieOutput connectionWithMediaType:AVMediaTypeVideo];
+    connection.automaticallyAdjustsVideoMirroring = YES;
+    
+    if ([self.session canAddOutput:self.movieOutput])
+    {
+        [self.session addOutput:self.movieOutput];
+    }
+    
+    //写入文件
+    NSString *filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject stringByAppendingPathComponent:@"movie.mp4"];
+    NSURL *url = [NSURL fileURLWithPath:filePath];
+    [self.movieOutput startRecordingToOutputFileURL:url recordingDelegate:self];
+}
+
 - (void)addInputOutputToSession:(AVCaptureInput *)input output:(AVCaptureOutput *)output
 {
     [self.session beginConfiguration];
@@ -110,6 +133,56 @@
     
     [self.session commitConfiguration];
 }
+
+#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudioDataOutputSampleBufferDelegate两个delegate是调用同一个方法名的方法
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+{
+    if ([self.videoOutput connectionWithMediaType:AVMediaTypeVideo] == connection)
+    {
+        NSLog(@"视频数据");
+    }
+    else
+    {
+        NSLog(@"音频数据");
+    }
+}
+
+#pragma mark - AVCaptureFileOutputRecordingDelegate 监听开始写入文件, 以及结束写入文件
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
+{
+    NSLog(@"开始写入文件");
+}
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
+{
+    NSLog(@"完成写入文件");
+}
+
+#pragma mark - click 事件
+
+- (IBAction)startCapturing:(id)sender
+{
+    [self.session startRunning];
+    
+    [self setupPreviewLayer];
+    
+    //开始写入文件
+    [self setupMovieFileOutput];
+}
+
+- (IBAction)StopCapturing:(id)sender
+{
+    [self.movieOutput stopRecording];
+    
+    [self.session stopRunning];
+    
+    [self.previewLayer removeFromSuperlayer];
+    
+    
+}
+
 #pragma mark - getter && setter
 
 - (AVCaptureSession *)session

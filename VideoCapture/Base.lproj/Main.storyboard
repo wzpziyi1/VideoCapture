@@ -25,11 +25,17 @@
                                 <rect key="frame" x="53" y="65" width="62" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="开始采集"/>
+                                <connections>
+                                    <action selector="startCapturing:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uPE-xr-hg8"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0QR-H6-zSh">
                                 <rect key="frame" x="53" y="123" width="62" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="停止采集"/>
+                                <connections>
+                                    <action selector="StopCapturing:" destination="BYZ-38-t0r" eventType="touchUpInside" id="miK-G0-rkX"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fFk-2x-RjN">
                                 <rect key="frame" x="53" y="184" width="62" height="30"/>
